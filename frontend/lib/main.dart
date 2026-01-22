@@ -6,6 +6,7 @@ import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
 import 'features/device/presentation/pages/scanning_page.dart';
+import 'config/theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,12 +42,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => di.sl<AuthBloc>()),
       ],
       child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
         title: 'Ring App Project',
-        theme: ThemeData(
-          brightness: Brightness.dark,
-          primaryColor: Colors.cyan,
-          useMaterial3: true,
-        ),
+        theme: AppTheme.darkTheme,
         routerConfig: _router,
       ),
     );

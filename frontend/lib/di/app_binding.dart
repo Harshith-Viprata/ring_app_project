@@ -6,6 +6,7 @@ import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../features/device/data/repositories/device_repository_impl.dart';
 import '../features/device/domain/repositories/device_repository.dart';
 import '../features/device/presentation/bloc/device_bloc.dart';
+import '../features/dashboard/data/mock_health_service.dart';
 
 final sl = GetIt.instance;
 
@@ -16,14 +17,17 @@ Future<void> init() async {
   
   sl.registerLazySingleton(() => Dio(
     BaseOptions(
-      baseUrl: 'http://localhost:3000', // Update with your IP if running on device
+      baseUrl: 'http://192.168.16.1:3000', // Update with your IP if running on device
       connectTimeout: const Duration(seconds: 5),
       receiveTimeout: const Duration(seconds: 3),
     ),
   ));
 
+  // Services
+  sl.registerLazySingleton(() => MockHealthService());
+
   // Repositories
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
+  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl(), sl()));
   sl.registerLazySingleton<DeviceRepository>(() => DeviceRepositoryImpl());
 
   // Blocs

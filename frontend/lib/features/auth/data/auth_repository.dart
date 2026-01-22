@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/error/exceptions.dart';
 
 abstract class AuthRepository {
@@ -8,8 +9,9 @@ abstract class AuthRepository {
 
 class AuthRepositoryImpl implements AuthRepository {
   final Dio dio;
+  final SharedPreferences sharedPreferences;
 
-  AuthRepositoryImpl(this.dio);
+  AuthRepositoryImpl(this.dio, this.sharedPreferences);
 
   @override
   Future<String> login(String email, String password) async {
@@ -18,7 +20,9 @@ class AuthRepositoryImpl implements AuthRepository {
         'email': email,
         'password': password,
       });
-      return response.data['access_token'];
+      final token = response.data['access_token'];
+      await sharedPreferences.setString('token', token);
+      return token;
     } catch (e) {
       throw ServerException();
     }
@@ -31,7 +35,9 @@ class AuthRepositoryImpl implements AuthRepository {
         'email': email,
         'password': password,
       });
-      return response.data['access_token'];
+      final token = response.data['access_token'];
+      await sharedPreferences.setString('token', token);
+      return token;
     } catch (e) {
       throw ServerException();
     }
