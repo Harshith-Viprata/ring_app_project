@@ -17,7 +17,7 @@ Future<void> init() async {
   
   sl.registerLazySingleton(() => Dio(
     BaseOptions(
-      baseUrl: 'http://192.168.16.1:3000', // Update with your IP if running on device
+      baseUrl: 'http://192.168.1.67:3000', // Update with your IP if running on device
       connectTimeout: const Duration(seconds: 5),
       receiveTimeout: const Duration(seconds: 3),
     ),

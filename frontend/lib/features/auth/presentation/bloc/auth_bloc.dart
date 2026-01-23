@@ -8,6 +8,12 @@ abstract class AuthEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class RegisterRequested extends AuthEvent {
+  final String email;
+  final String password;
+  RegisterRequested(this.email, this.password);
+}
+
 class LoginRequested extends AuthEvent {
   final String email;
   final String password;
@@ -43,6 +49,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthAuthenticated(token));
       } catch (e) {
         emit(AuthFailure("Login failed"));
+      }
+    });
+
+    on<RegisterRequested>((event, emit) async {
+      emit(AuthLoading());
+      try {
+        final token = await authRepository.register(event.email, event.password);
+        emit(AuthAuthenticated(token));
+      } catch (e) {
+        emit(AuthFailure("Registration failed: ${e.toString()}"));
       }
     });
   }

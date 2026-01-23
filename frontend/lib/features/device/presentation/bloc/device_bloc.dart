@@ -29,9 +29,18 @@ class DeviceScanning extends DeviceState {
   @override
   List<Object> get props => [devices];
 }
+class DeviceFollowing extends DeviceState {}
 class DeviceConnectedState extends DeviceState {
   final String deviceId;
   DeviceConnectedState(this.deviceId);
+  @override
+  List<Object> get props => [deviceId];
+}
+class DeviceFailure extends DeviceState {
+  final String message;
+  DeviceFailure(this.message);
+  @override
+  List<Object> get props => [message];
 }
 
 // Bloc
@@ -40,15 +49,26 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
 
   DeviceBloc(this.repository) : super(DeviceInitial()) {
     on<ScanStarted>((event, emit) async {
-      await repository.startScan();
-      await emit.forEach(repository.scanResults, onData: (devices) {
-        return DeviceScanning(devices);
-      });
+      try {
+        emit(DeviceScanning(const [])); // Show loading/empty list initially
+        await repository.startScan();
+        await emit.forEach(repository.scanResults, onData: (devices) {
+            return DeviceScanning(devices);
+        }, onError: (e, s) {
+            return DeviceFailure("Stream Error: $e");
+        });
+      } catch (e) {
+        emit(DeviceFailure("Start Scan Failed: $e"));
+      }
     });
 
     on<ScanStopped>((event, emit) async {
-      await repository.stopScan();
-      emit(DeviceInitial());
+      try {
+        await repository.stopScan();
+        emit(DeviceInitial());
+      } catch (e) {
+        // ignore error on stop
+      }
     });
   }
 }

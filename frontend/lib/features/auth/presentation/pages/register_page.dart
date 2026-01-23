@@ -3,25 +3,25 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(title: const Text('Register')),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            context.go('/');
+            context.go('/'); // Navigate to Dashboard on success
           } else if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
@@ -47,19 +47,19 @@ class _LoginPageState extends State<LoginPage> {
               ElevatedButton(
                 onPressed: () {
                   context.read<AuthBloc>().add(
-                    LoginRequested(
+                    RegisterRequested(
                       _emailController.text,
                       _passwordController.text,
                     ),
                   );
                 },
-                child: const Text('Login'),
+                child: const Text('Register'),
               ),
               TextButton(
                  onPressed: () {
-                   context.push('/register');
+                   context.pop(); // Go back to Login
                  },
-                 child: const Text('Register'),
+                 child: const Text('Already have an account? Login'),
               )
             ],
           ),

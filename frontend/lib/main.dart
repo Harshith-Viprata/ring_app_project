@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'di/app_binding.dart' as di;
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/pages/login_page.dart';
+import 'features/auth/presentation/pages/register_page.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
 import 'features/device/presentation/pages/scanning_page.dart';
 import 'config/theme/app_theme.dart';
@@ -20,6 +21,10 @@ final _router = GoRouter(
     GoRoute(
       path: '/login',
       builder: (context, state) => const LoginPage(),
+    ),
+    GoRoute(
+      path: '/register',
+      builder: (context, state) => const RegisterPage(),
     ),
     GoRoute(
       path: '/',
