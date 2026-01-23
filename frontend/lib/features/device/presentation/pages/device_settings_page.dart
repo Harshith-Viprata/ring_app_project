@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yc_product_plugin/yc_product_plugin.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../bloc/device_bloc.dart';
 import 'firmware_update_page.dart';
 import 'watch_face_page.dart';
 import 'remote_control_page.dart';
@@ -26,6 +28,32 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
       body: ListView(
         children: [
           _buildSectionHeader("Features"),
+          ListTile(
+            leading: const Icon(Icons.access_time),
+            title: const Text("Sync Device Time"),
+            onTap: () {
+               // Use repo directly or bloc if event exists. 
+               // For now, let's assume we can trigger it via a simple method or event
+               // Since SetTime isn't an event, I'll access repo via read or just add the event.
+               // Actually, it's safer to use direct plugin for simple commands if Bloc event missing,
+               // BUT I implemented setTime in Repo. I should ideally add 'SyncTime' event to Bloc.
+               // Let's use direct plugin for speed as requested, or add event. 
+               // I'll stick to 'SetStepGoal' which HAS an event.
+               // For Time, I'll just use the plugin reference as in existing code, 
+               // OR better, create the event efficiently. 
+               // Existing code uses YcProductPlugin()... I will follow that pattern for now for consistency 
+               // unless I want to be strict. I'll use YcProductPlugin().setDeviceSyncPhoneTime() directly here
+               // matching the style of the file.
+               YcProductPlugin().setDeviceSyncPhoneTime();
+               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Time Sync Command Sent')));
+            },
+          ),
+           ListTile(
+            leading: const Icon(Icons.directions_walk),
+            title: const Text("Set Step Goal"),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: _setStepGoal, // New Method
+          ),
           ListTile(
             leading: const Icon(Icons.watch),
             title: const Text("Watch Faces"),
@@ -109,6 +137,34 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
           color: Theme.of(context).primaryColor,
           fontWeight: FontWeight.bold,
         ),
+      ),
+    );
+  }
+
+  void _setStepGoal() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Set Step Goal"),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(labelText: "Target Steps (e.g. 10000)"),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
+          TextButton(
+             onPressed: () {
+                final steps = int.tryParse(controller.text);
+                if (steps != null && mounted) {
+                   context.read<DeviceBloc>().add(SetStepGoal(steps));
+                   Navigator.pop(ctx);
+                }
+             },
+             child: const Text("Save"),
+          )
+        ],
       ),
     );
   }
