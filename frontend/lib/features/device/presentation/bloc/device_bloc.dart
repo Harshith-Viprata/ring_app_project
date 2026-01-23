@@ -42,9 +42,9 @@ class ToggleRealTime extends DeviceEvent {
 class StartECG extends DeviceEvent {}
 class StopECG extends DeviceEvent {}
 
-class SetStepGoal extends DeviceEvent {
+class SetDeviceStepGoal extends DeviceEvent {
   final int steps;
-  SetStepGoal(this.steps);
+  SetDeviceStepGoal(this.steps);
 }
 
 // States
@@ -180,7 +180,7 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
       await repository.stopECG();
     });
 
-    on<SetStepGoal>((event, emit) async {
+    on<SetDeviceStepGoal>((event, emit) async {
        try {
          await repository.setStepGoal(event.steps);
        } catch (e) {

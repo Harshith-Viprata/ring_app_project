@@ -76,16 +76,16 @@ class YcDeviceRepository implements DeviceRepository {
   @override
   Future<DeviceDetailedInfo> getDeviceDetail(String deviceId) async {
      final basicInfo = await YcProductPlugin().queryDeviceBasicInfo(); // PluginResponse<DeviceBasicInfo>
-     final mac = await YcProductPlugin().getMacAdress();
-     final model = await YcProductPlugin().getDeviceModel();
+     final mac = await YcProductPlugin().queryDeviceMacAddress();
+     final model = await YcProductPlugin().queryDeviceModel();
      
      if (basicInfo?.data == null) throw Exception("Failed to get device info");
      
      return DeviceDetailedInfo(
-       batteryLevel: basicInfo!.data!.power ?? 0,
-       firmwareVersion: basicInfo.data!.firmwareVersion ?? 'Unknown',
-       macAddress: mac ?? deviceId,
-       deviceModel: model ?? 'Unknown',
+       batteryLevel: basicInfo!.data.batteryPower,
+       firmwareVersion: basicInfo.data.firmwareVersion,
+       macAddress: mac?.data ?? deviceId,
+       deviceModel: model?.data ?? 'Unknown',
      );
   }
 
@@ -104,7 +104,7 @@ class YcDeviceRepository implements DeviceRepository {
     final response = await YcProductPlugin().queryDeviceHealthData(sdkType);
     
     // Parse response.data which is List<dynamic>
-    if (response?.code == PluginState.succeed && response?.data != null) {
+    if (response?.statusCode == PluginState.succeed && response?.data != null) {
        return (response!.data as List).map((e) {
           // Generic mapping, would need specific parsing based on type
           // Assuming 'startTime' field exists for timestamp
@@ -123,16 +123,16 @@ class YcDeviceRepository implements DeviceRepository {
 
   @override
   Future<void> toggleRealTimeData(AppRealTimeDataType type, bool isOpen) async {
-      int sdkType;
+      DeviceRealTimeDataType sdkType;
       switch (type) {
-        case AppRealTimeDataType.heartRate: sdkType = RealTimeDataType.heartRate; break;
-        case AppRealTimeDataType.bloodPressure: sdkType = RealTimeDataType.bloodPressure; break;
-        case AppRealTimeDataType.bloodOxygen: sdkType = RealTimeDataType.bloodOxygen; break;
-        case AppRealTimeDataType.temp: sdkType = RealTimeDataType.bodyTemperature; break;
-        default: return;
+        case AppRealTimeDataType.heartRate: sdkType = DeviceRealTimeDataType.heartRate; break;
+        case AppRealTimeDataType.bloodPressure: sdkType = DeviceRealTimeDataType.bloodPressure; break;
+        case AppRealTimeDataType.bloodOxygen: sdkType = DeviceRealTimeDataType.bloodOxygen; break;
+        case AppRealTimeDataType.temp: sdkType = DeviceRealTimeDataType.combinedData; break; // Temp not directly in simple list, using combined or closest
+        default: sdkType = DeviceRealTimeDataType.heartRate;
       }
       
-      await YcProductPlugin().appControlRealTimeData(sdkType, isOpen);
+      await YcProductPlugin().realTimeDataUpload(isOpen, dataType: sdkType);
   }
 
   @override

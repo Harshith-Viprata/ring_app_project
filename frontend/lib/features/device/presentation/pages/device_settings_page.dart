@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yc_product_plugin/yc_product_plugin.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../bloc/device_bloc.dart';
+import '../bloc/device_bloc.dart';
 import 'firmware_update_page.dart';
 import 'watch_face_page.dart';
 import 'remote_control_page.dart';
@@ -158,7 +158,7 @@ class _DeviceSettingsPageState extends State<DeviceSettingsPage> {
              onPressed: () {
                 final steps = int.tryParse(controller.text);
                 if (steps != null && mounted) {
-                   context.read<DeviceBloc>().add(SetStepGoal(steps));
+                   context.read<DeviceBloc>().add(SetDeviceStepGoal(steps));
                    Navigator.pop(ctx);
                 }
              },

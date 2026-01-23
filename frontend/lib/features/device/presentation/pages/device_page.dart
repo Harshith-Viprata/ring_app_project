@@ -31,7 +31,67 @@ class DevicePage extends StatelessWidget {
     );
   }
 
-  // ... (Disconnected and Scanning views remain same)
+  Widget _buildDisconnectedView(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.bluetooth_disabled, size: 80, color: Colors.grey),
+          const SizedBox(height: 16),
+          const Text('No Device Connected', style: TextStyle(fontSize: 20)),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.search),
+            label: const Text('Scan for Ring'),
+            onPressed: () => _startScan(context),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScanningView(BuildContext context, List<dynamic> devices) {
+    return Column(
+      children: [
+        const LinearProgressIndicator(),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Scanning...', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              TextButton(
+                 onPressed: () => context.read<DeviceBloc>().add(ScanStopped()), 
+                 child: const Text('Stop')
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: devices.isEmpty
+              ? const Center(child: Text('Searching for devices...'))
+              : ListView.builder(
+                  itemCount: devices.length,
+                  itemBuilder: (context, index) {
+                    final device = devices[index];
+                    return ListTile(
+                      leading: const Icon(Icons.watch),
+                      title: Text(device.name.isNotEmpty ? device.name : 'Unknown Device'),
+                      subtitle: Text(device.id),
+                      trailing: Text('${device.rssi} dBm'),
+                      onTap: () {
+                        context.read<DeviceBloc>().add(DeviceConnected(device.id)); // Actually logic connect
+                      },
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildConnectedView(BuildContext context, DeviceState state, String deviceId) {
     DeviceDetailedInfo? info;
