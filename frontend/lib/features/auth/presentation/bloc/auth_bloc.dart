@@ -34,6 +34,8 @@ class LoginRequested extends AuthEvent {
 
 class GetProfileRequested extends AuthEvent {}
 
+class CheckAuthStatus extends AuthEvent {}
+
 // States
 abstract class AuthState extends Equatable {
   @override
@@ -61,6 +63,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository authRepository;
 
   AuthBloc(this.authRepository) : super(AuthInitial()) {
+    on<CheckAuthStatus>((event, emit) async {
+       emit(AuthLoading());
+       try {
+         final token = await authRepository.getToken();
+         if (token != null) {
+           emit(AuthAuthenticated(token));
+         } else {
+           emit(AuthInitial());
+         }
+       } catch (e) {
+         emit(AuthInitial());
+       }
+    });
+
     on<LoginRequested>((event, emit) async {
       emit(AuthLoading());
       try {
@@ -87,6 +103,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthFailure("Registration failed: ${e.toString()}"));
       }
     });
+
     on<GetProfileRequested>((event, emit) async {
        emit(AuthLoading());
        try {

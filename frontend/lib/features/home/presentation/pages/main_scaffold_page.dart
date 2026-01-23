@@ -27,28 +27,29 @@ class _MainScaffoldPageState extends State<MainScaffoldPage> {
         index: _currentIndex,
         children: _pages,
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
           setState(() {
             _currentIndex = index;
           });
         },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.favorite_border),
-            selectedIcon: Icon(Icons.favorite),
-            label: 'Health',
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'HomePage',
           ),
-          NavigationDestination(
+          BottomNavigationBarItem(
             icon: Icon(Icons.watch_outlined),
-            selectedIcon: Icon(Icons.watch),
+            activeIcon: Icon(Icons.watch),
             label: 'Device',
           ),
-          NavigationDestination(
+          BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
+            activeIcon: Icon(Icons.person),
+            label: 'Mine',
           ),
         ],
       ),

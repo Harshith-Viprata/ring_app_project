@@ -12,6 +12,7 @@ import 'features/auth/presentation/pages/register_page.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
 import 'features/device/presentation/pages/scanning_page.dart';
 import 'config/theme/app_theme.dart';
+import 'config/routes/app_routes.dart';
 
 import 'package:yc_product_plugin/yc_product_plugin.dart';
 
@@ -25,34 +26,22 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-final _router = GoRouter(
-  initialLocation: '/login', // TODO: Check token
-  routes: [
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => const LoginPage(),
-    ),
-    GoRoute(
-      path: '/register',
-      builder: (context, state) => const RegisterPage(),
-    ),
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const MainScaffoldPage(),
-    ),
-    GoRoute(
-      path: '/scan',
-      builder: (context, state) => const ScanningPage(), // Deprecated/Hidden
-    ),
-    GoRoute(
-      path: '/ecg',
-      builder: (context, state) => const ECGPage(),
-    ),
-  ],
-);
+final _router = AppRoutes.router;
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Check for existing token
+    di.sl<AuthBloc>().add(CheckAuthStatus());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,11 +51,20 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => di.sl<DeviceBloc>()),
         BlocProvider(create: (context) => di.sl<HealthBloc>()),
       ],
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: 'Ring App Project',
-        theme: AppTheme.darkTheme,
-        routerConfig: _router,
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthAuthenticated) {
+            _router.go(AppRoutes.home);
+          } else if (state is AuthInitial) {
+            _router.go(AppRoutes.login);
+          }
+        },
+        child: MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          title: 'Ring App Project',
+          theme: AppTheme.lightTheme,
+          routerConfig: _router,
+        ),
       ),
     );
   }

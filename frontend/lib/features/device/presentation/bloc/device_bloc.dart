@@ -51,7 +51,7 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
     on<ScanStarted>((event, emit) async {
       try {
         emit(DeviceScanning(const [])); // Show loading/empty list initially
-        await repository.startScan();
+        repository.startScan(); // Don't await, let it run and emit to stream
         await emit.forEach(repository.scanResults, onData: (devices) {
             return DeviceScanning(devices);
         }, onError: (e, s) {
@@ -68,6 +68,16 @@ class DeviceBloc extends Bloc<DeviceEvent, DeviceState> {
         emit(DeviceInitial());
       } catch (e) {
         // ignore error on stop
+      }
+    });
+
+    on<DeviceConnected>((event, emit) async {
+      try {
+        await repository.connect(event.id);
+        emit(DeviceConnectedState(event.id));
+      } catch (e) {
+        print("Bloc: Connection Failed: $e");
+        emit(DeviceFailure("Connection Failed: $e"));
       }
     });
   }

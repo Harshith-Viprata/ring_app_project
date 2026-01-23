@@ -6,6 +6,7 @@ abstract class AuthRepository {
   Future<String> login(String email, String password);
   Future<String> register(String email, String password, {int? height, int? weight, int? gender, String? birthDate});
   Future<Map<String, dynamic>> getProfile();
+  Future<String?> getToken();
 }
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -13,6 +14,11 @@ class AuthRepositoryImpl implements AuthRepository {
   final SharedPreferences sharedPreferences;
 
   AuthRepositoryImpl(this.dio, this.sharedPreferences);
+
+  @override
+  Future<String?> getToken() async {
+    return sharedPreferences.getString('token');
+  }
 
   @override
   Future<String> login(String email, String password) async {

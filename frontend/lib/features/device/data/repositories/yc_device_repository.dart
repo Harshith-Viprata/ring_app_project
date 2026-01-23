@@ -39,12 +39,22 @@ class YcDeviceRepository implements DeviceRepository {
 
   @override
   Future<void> connect(String deviceId) async {
-    final device = _cachedDevices.firstWhere(
-      (d) => d.macAddress == deviceId, 
-      orElse: () => throw Exception("Device not found in cache"),
-    );
-    
-    await YcProductPlugin().connectDevice(device);
+    print("Repo: Connecting to $deviceId. Cache size: ${_cachedDevices.length}");
+    try {
+      final device = _cachedDevices.firstWhere(
+        (d) => d.macAddress == deviceId, 
+        orElse: () {
+           print("Repo: Device $deviceId NOT found in cache!");
+           throw Exception("Device not found in cache");
+        },
+      );
+      print("Repo: Found device in cache: ${device.name}, connecting...");
+      await YcProductPlugin().connectDevice(device);
+      print("Repo: Connection command sent successfully.");
+    } catch (e) {
+      print("Repo: Connect threw error: $e");
+      rethrow;
+    }
   }
 
   @override
