@@ -4,7 +4,8 @@ import '../../../../core/error/exceptions.dart';
 
 abstract class AuthRepository {
   Future<String> login(String email, String password);
-  Future<String> register(String email, String password);
+  Future<String> register(String email, String password, {int? height, int? weight, int? gender, String? birthDate});
+  Future<Map<String, dynamic>> getProfile();
 }
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -29,15 +30,31 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<String> register(String email, String password) async {
+  Future<String> register(String email, String password, {int? height, int? weight, int? gender, String? birthDate}) async {
     try {
       final response = await dio.post('/auth/register', data: {
         'email': email,
         'password': password,
+        'height': height,
+        'weight': weight,
+        'gender': gender,
+        'birthDate': birthDate,
       });
       final token = response.data['access_token'];
       await sharedPreferences.setString('token', token);
       return token;
+    } catch (e) {
+      throw ServerException();
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getProfile() async {
+    try {
+      final token = sharedPreferences.getString('token');
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      final response = await dio.get('/auth/profile');
+      return response.data;
     } catch (e) {
       throw ServerException();
     }

@@ -11,7 +11,19 @@ abstract class AuthEvent extends Equatable {
 class RegisterRequested extends AuthEvent {
   final String email;
   final String password;
-  RegisterRequested(this.email, this.password);
+  final int? height;
+  final int? weight;
+  final int? gender;
+  final String? birthDate;
+
+  RegisterRequested(
+    this.email, 
+    this.password, {
+    this.height,
+    this.weight,
+    this.gender,
+    this.birthDate,
+  });
 }
 
 class LoginRequested extends AuthEvent {
@@ -19,6 +31,8 @@ class LoginRequested extends AuthEvent {
   final String password;
   LoginRequested(this.email, this.password);
 }
+
+class GetProfileRequested extends AuthEvent {}
 
 // States
 abstract class AuthState extends Equatable {
@@ -35,6 +49,11 @@ class AuthAuthenticated extends AuthState {
 class AuthFailure extends AuthState {
   final String message;
   AuthFailure(this.message);
+}
+
+class ProfileLoaded extends AuthState {
+  final Map<String, dynamic> user;
+  ProfileLoaded(this.user);
 }
 
 // Bloc
@@ -55,11 +74,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RegisterRequested>((event, emit) async {
       emit(AuthLoading());
       try {
-        final token = await authRepository.register(event.email, event.password);
+        final token = await authRepository.register(
+            event.email, 
+            event.password,
+            height: event.height,
+            weight: event.weight,
+            gender: event.gender,
+            birthDate: event.birthDate,
+        );
         emit(AuthAuthenticated(token));
       } catch (e) {
         emit(AuthFailure("Registration failed: ${e.toString()}"));
       }
+    });
+    on<GetProfileRequested>((event, emit) async {
+       emit(AuthLoading());
+       try {
+         final user = await authRepository.getProfile();
+         emit(ProfileLoaded(user));
+       } catch (e) {
+         emit(AuthFailure("Failed to load profile"));
+       }
     });
   }
 }
