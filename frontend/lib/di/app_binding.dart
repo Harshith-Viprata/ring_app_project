@@ -3,10 +3,12 @@ import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../features/auth/data/auth_repository.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
-import '../features/device/data/repositories/device_repository_impl.dart';
+import '../features/device/data/repositories/yc_device_repository.dart';
+import '../features/health/data/yc_health_repository.dart';
 import '../features/device/domain/repositories/device_repository.dart';
 import '../features/device/presentation/bloc/device_bloc.dart';
 import '../features/dashboard/data/mock_health_service.dart';
+import '../features/health/presentation/bloc/health_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -28,9 +30,11 @@ Future<void> init() async {
 
   // Repositories
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl(), sl()));
-  sl.registerLazySingleton<DeviceRepository>(() => DeviceRepositoryImpl());
+  sl.registerLazySingleton<DeviceRepository>(() => YcDeviceRepository());
+  sl.registerLazySingleton<YcHealthRepository>(() => YcHealthRepository());
 
   // Blocs
   sl.registerFactory(() => AuthBloc(sl()));
   sl.registerFactory(() => DeviceBloc(sl()));
+  sl.registerFactory(() => HealthBloc(sl()));
 }

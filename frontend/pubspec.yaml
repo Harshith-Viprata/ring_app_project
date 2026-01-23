@@ -34,13 +34,16 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  yc_product_plugin:
+    git:
+      url: https://gitee.com/yucheng_3/yc_product_plugin.git
+      path: code/
   flutter_bloc: ^9.1.1
   equatable: ^2.0.8
   get_it: ^9.2.0
   go_router: ^17.0.1
   dio: ^5.9.0
   shared_preferences: ^2.5.4
-  flutter_blue_plus: ^2.1.0
   permission_handler: ^12.0.1
   freezed_annotation: ^3.1.0
   json_annotation: ^4.9.0
